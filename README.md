@@ -10,5 +10,5 @@ Simple rust program to format and return response of any API you want in a human
 
 A script exist for Debian to automate the installation.
 ```bash
-curl https://raw.githubusercontent.com/Cyrix126/api-formatter/docs/quick-install.sh | sh
+curl https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/quick-install.sh | sh
 ```

@@ -6,14 +6,25 @@ then
   sudo mkdir -p /opt/api-formatter /etc/api-formatter
   # set right permission to directories
   sudo chown -R $USER /opt/api-formatter /etc/api-formatter
+
   # download binary
+  rm -f /opt/api-formatter/api-formatter-linux-amd64
   wget -q -P /opt/api-formatter/ https://github.com/Cyrix126/api-formatter/releases/download/v0.1.0/api-formatter-linux-amd64
   # set execution permission for binary
   sudo chmod +x /opt/api-formatter/api-formatter-linux-amd64
-  # download configuration
+
+  # download configuration if it doesnt' exist.
+  if [! -f /etc/api-formatter/config.toml ]
+  then
   wget -q -P /etc/api-formatter/config.toml https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/config.toml
-  # download systemd service
- sudo wget -q -P /etc/systemd/system https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/api-formatter.service   # reload systemctl and enable service at boot
+  fi
+  if [! -f /etc/api-formatter/config.toml ]
+  then
+  # download systemd service if it doesn't exist
+ sudo wget -q -P /etc/systemd/system https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/api-formatter.service   
+ fi
+
+# reload systemctl and enable service at boot
   sudo systemctl-daemon reload
   sudo systemctl enable api-formatter
   sudo systemctl stop api-formatter
