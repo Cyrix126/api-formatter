@@ -1,6 +1,6 @@
 # API formatter
 
-Simple rust programm to format and return response of any API you want in a human readable way.
+Simple rust program to format and return response of any API you want in a human readable way.
 
 ## Features
 - works with any Json Restful API
