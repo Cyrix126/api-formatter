@@ -17,7 +17,7 @@ then
   # download configuration if it doesnt' exist.
   if [ ! -f /etc/api-formatter/config.toml ]
   then
-  wget -q -P /etc/api-formatter/config.toml https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/config.toml
+  wget -q -P /etc/api-formatter/ https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/config.toml
   fi
   if [ ! -f /etc/api-formatter/config.toml ]
   then
