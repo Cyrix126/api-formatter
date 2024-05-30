@@ -60,12 +60,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn handler(State(state): State<AppState>, request: Request) -> impl IntoResponse {
     info!("new request ! ");
     debug!("The request received {:?}", request);
+    let uri = format!("{}{}", state.base_uri, request.uri()).replace("//", "/");
+    debug!("Url to request: {uri}");
     let req = state
         .client
-        .request(
-            request.method().to_owned(),
-            format!("{}{}", state.base_uri, request.uri()),
-        )
+        .request(request.method().to_owned(), uri)
         .headers(request.headers().to_owned())
         .body(to_bytes(request.into_body(), usize::MAX).await.unwrap())
         .send()
