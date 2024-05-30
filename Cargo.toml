@@ -24,7 +24,7 @@ overflow-checks = true
 incremental = true
 
 [dependencies]
-readable = "0.16.0"
+readable = {version="0.16", default-features=false, features=["num"]}
 axum = {version="0.7", default-features= false, features= ["tokio", "http2"]}
 tokio = {version="1", default-features=false, features= ["rt-multi-thread"]}
 reqwest = {version="0.12", default-features=false, features=["json", "rustls-tls", "http2"]}
