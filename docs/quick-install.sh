@@ -15,11 +15,11 @@ then
   sudo chmod +x /opt/api-formatter/api-formatter-linux-amd64
 
   # download configuration if it doesnt' exist.
-  if [! -f /etc/api-formatter/config.toml ]
+  if [ ! -f /etc/api-formatter/config.toml ]
   then
   wget -q -P /etc/api-formatter/config.toml https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/config.toml
   fi
-  if [! -f /etc/api-formatter/config.toml ]
+  if [ ! -f /etc/api-formatter/config.toml ]
   then
   # download systemd service if it doesn't exist
  sudo wget -q -P /etc/systemd/system https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/api-formatter.service   
