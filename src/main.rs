@@ -36,6 +36,7 @@ impl Default for Config {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    tracing_subscriber::fmt::init();
     info!("reading configuration file...");
     let config: Config = confy::load_path("/etc/api-formatter/config.toml").expect("check that the directory /etc/api-formatter exist and that the program is ran with sufficient permission");
     info!("creating client");
@@ -46,7 +47,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let listener =
         tokio::net::TcpListener::bind(format!("{}:{}", config.listen_address, config.listen_port))
             .await?;
-    info!("Listening to {}", config.listen_address);
+    info!(
+        "Listening to {}:{}",
+        config.listen_address, config.listen_port
+    );
     axum::serve(listener, route.into_make_service()).await?;
     Ok(())
 }
