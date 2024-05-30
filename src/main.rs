@@ -4,7 +4,6 @@ use axum::{
     body::to_bytes,
     extract::{Request, State},
     response::IntoResponse,
-    routing::get,
     Router,
 };
 use reqwest::{Client, Url};
@@ -40,7 +39,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let state = AppState {
         client: Client::new(),
     };
-    let route = Router::new().route("/", get(handler)).with_state(state);
+    let route = Router::new().fallback(handler).with_state(state);
     let listener =
         tokio::net::TcpListener::bind(format!("{}:{}", config.listen_address, config.listen_port))
             .await?;
