@@ -1,0 +1,35 @@
+cargo-features = ["profile-rustflags"]
+[package]
+name = "api-formatter"
+version = "0.1.0"
+authors = ["cyrix126 <gupaxx@baermail.fr>"]
+description = "Proxy to format output of API in a human readable way"
+documentation = "https://github.com/cyrix126/api-formatter"
+edition = "2021"
+
+[profile.release]
+panic = "abort"
+lto = "fat"
+codegen-units = 1
+incremental = false
+strip = "symbols"
+rustflags = ["-Zlocation-detail=none"]
+
+[profile.dev]
+opt-level = 1
+debug = true
+strip = "none"
+debug-assertions = true
+overflow-checks = true
+incremental = true
+
+[dependencies]
+readable = "0.16.0"
+axum = {version="0.7", default-features= false, features= ["tokio", "http2"]}
+tokio = {version="1", default-features=false, features= ["rt-multi-thread"]}
+reqwest = {version="0.12", default-features=false, features=["json"]}
+anyhow = "1.0"
+confy = "0.6"
+url = {version="2.5.0", features=["serde"]}
+serde = { version = "1", features = ["derive"]}
+serde_json = "1"
