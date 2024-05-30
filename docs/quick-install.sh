@@ -1,5 +1,6 @@
 #!/bin/sh
-if grep -q Debian /etc/os-release
+# check that script is on supported distribution.
+if grep -q debian /etc/os-release
 then
   sudo apt install wget -y
   # crate binary and config directories
