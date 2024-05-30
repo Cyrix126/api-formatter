@@ -29,7 +29,7 @@ then
   sudo systemctl daemon-reload
   sudo systemctl enable api-formatter
   sudo systemctl stop api-formatter
-  echo "Please customize the configuration file at /etc/api-formatter and start the program with\nsudo service api-formatter start"
+  echo "\n\n\nPlease customize the configuration file at /etc/api-formatter and start the program with\nsudo service api-formatter start"
 else
-  echo "This script is only for Debian distribution, abort." 
+  echo "\n\n\nThis script is only for Debian distribution, abort." 
 fi
