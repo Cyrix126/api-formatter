@@ -20,6 +20,7 @@ struct Config {
 #[derive(Clone)]
 struct AppState {
     client: Client,
+    base_uri: Url,
 }
 
 impl Default for Config {
@@ -27,7 +28,7 @@ impl Default for Config {
         Self {
             listen_address: Ipv4Addr::new(127, 0, 0, 1),
             listen_port: 8080,
-            api_url: Url::parse("https://xmrchain.net/api").expect(
+            api_url: Url::parse("https://127.0.0.1:8081").expect(
                 "the url provided for api_url in the configuration file does not sem to be valid.",
             ),
         }
@@ -42,6 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("creating client");
     let state = AppState {
         client: Client::new(),
+        base_uri: config.api_url.to_owned(),
     };
     let route = Router::new().fallback(handler).with_state(state);
     let listener =
@@ -60,7 +62,10 @@ async fn handler(State(state): State<AppState>, request: Request) -> impl IntoRe
     debug!("The request received {:?}", request);
     let req = state
         .client
-        .request(request.method().to_owned(), request.uri().to_string())
+        .request(
+            request.method().to_owned(),
+            format!("{}{}", state.base_uri, request.uri()),
+        )
         .headers(request.headers().to_owned())
         .body(to_bytes(request.into_body(), usize::MAX).await.unwrap())
         .send()
