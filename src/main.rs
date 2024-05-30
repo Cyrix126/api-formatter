@@ -9,6 +9,7 @@ use axum::{
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tracing::{debug, info, warn};
 #[derive(Serialize, Deserialize)]
 struct Config {
     listen_address: Ipv4Addr,
@@ -35,7 +36,9 @@ impl Default for Config {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    info!("reading configuration file...");
     let config: Config = confy::load_path("/etc/api-formatter/config.toml").expect("check that the directory /etc/api-formatter exist and that the program is ran with sufficient permission");
+    info!("creating client");
     let state = AppState {
         client: Client::new(),
     };
@@ -43,25 +46,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let listener =
         tokio::net::TcpListener::bind(format!("{}:{}", config.listen_address, config.listen_port))
             .await?;
+    info!("Listening to {}", config.listen_address);
     axum::serve(listener, route.into_make_service()).await?;
     Ok(())
 }
 
 async fn handler(State(state): State<AppState>, request: Request) -> impl IntoResponse {
-    match state
+    info!("new request ! ");
+    debug!("The request received {:?}", request);
+    let req = state
         .client
         .request(request.method().to_owned(), request.uri().to_string())
         .headers(request.headers().to_owned())
         .body(to_bytes(request.into_body(), usize::MAX).await.unwrap())
         .send()
-        .await
-    {
+        .await;
+    debug!("The request that will be make by the proxy {:?}", req);
+    match req {
         Ok(rep) => format_resp(rep).await.into_response(),
-        Err(err) => (
-            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            err.to_string(),
-        )
-            .into_response(),
+        Err(err) => {
+            warn!("request had an error: {}", err);
+            (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                err.to_string(),
+            )
+                .into_response()
+        }
     }
 }
 
@@ -69,6 +79,7 @@ async fn format_resp(rep: reqwest::Response) -> impl IntoResponse {
     let headers = rep.headers().to_owned();
     let status = rep.status();
     if let Ok(mut body) = rep.json::<Value>().await {
+        debug!("pretty formatting the response: {}", body);
         format_json_fields_into_readable_output(&mut body);
         (status, headers, body.to_string()).into_response()
     } else {
