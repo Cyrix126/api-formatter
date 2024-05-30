@@ -1,8 +1,8 @@
 #!/bin/sh
 # check that script is on supported distribution.
-if grep -qq debian /etc/os-release
+if grep -q debian /etc/os-release
 then
-  sudo apt install wget -y
+  sudo apt -qq install wget -y
   # crate binary and config directories
   sudo mkdir -p /opt/api-formatter /etc/api-formatter
   # set right permission to directories
