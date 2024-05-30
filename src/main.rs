@@ -8,7 +8,7 @@ use axum::{
 };
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use tracing::{debug, info, warn};
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -86,45 +86,49 @@ async fn handler(State(state): State<AppState>, request: Request) -> impl IntoRe
 async fn format_resp(rep: reqwest::Response) -> impl IntoResponse {
     let headers = rep.headers().to_owned();
     let status = rep.status();
-    if let Ok(mut body) = rep.json::<Value>().await {
+    if let Ok(body) = rep.json::<Value>().await {
         debug!("pretty formatting the response: {}", body);
-        format_json_fields_into_readable_output(&mut body);
-        (status, headers, body.to_string()).into_response()
+        let pretty_json = format_json_fields_into_readable_output(body);
+        (status, headers, pretty_json.to_string()).into_response()
     } else {
         (axum::http::StatusCode::BAD_REQUEST, "API does not have a json output. This proxy formatter supports only API with json output.").into_response()
     }
 }
 
-fn format_json_fields_into_readable_output(json: &mut Value) {
+fn format_json_fields_into_readable_output(json: Value) -> Value {
     match json {
         Value::Object(object) => {
-            for (_key, value) in object {
-                format_json_fields_into_readable_output(value); // Recursive call to handle nested objects
+            let mut new_object = Map::new();
+            for (key, value) in object.into_iter() {
+                new_object.insert(key, format_json_fields_into_readable_output(value));
             }
+            Value::Object(new_object)
         }
         Value::Array(array) => {
-            for item in array {
-                format_json_fields_into_readable_output(item); // Recursive call to handle nested objects
+            let mut new_array = Vec::new();
+            for item in array.into_iter() {
+                new_array.push(format_json_fields_into_readable_output(item));
             }
+            Value::Array(new_array)
         }
         Value::Number(n) => {
             if n.is_i64() {
-                *n = readable::num::Int::from(n.as_i64().unwrap()).inner().into();
+                return Value::String(readable::num::Int::from(n.as_i64().unwrap()).to_string());
             }
             if n.is_u64() {
-                *n = readable::num::Unsigned::from(n.as_u64().unwrap())
-                    .inner()
-                    .into();
+                return Value::String(
+                    readable::num::Unsigned::from(n.as_u64().unwrap()).to_string(),
+                );
             }
             if n.is_f64() {
-                *n = serde_json::Number::from_f64(
-                    readable::num::Float::from(n.as_f64().unwrap()).inner(),
-                )
-                .expect("NAN or INFINITY should not be present in json Number");
+                return Value::String(readable::num::Float::from(n.as_f64().unwrap()).to_string());
             }
+            // all case of Number should be handled but because it's not en enum, need to return here.
+            Value::Number(n)
         }
         _ => {
             // no action on other values
+            json
         }
     }
 }

@@ -27,7 +27,7 @@ incremental = true
 readable = "0.16.0"
 axum = {version="0.7", default-features= false, features= ["tokio", "http2"]}
 tokio = {version="1", default-features=false, features= ["rt-multi-thread"]}
-reqwest = {version="0.12", default-features=false, features=["json"]}
+reqwest = {version="0.12", default-features=false, features=["json", "rustls-tls", "http2"]}
 anyhow = "1.0"
 confy = "0.6"
 url = {version="2.5.0", features=["serde"]}
