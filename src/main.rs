@@ -6,10 +6,17 @@ use axum::{
     response::IntoResponse,
     Router,
 };
-use reqwest::{Client, Url};
+use reqwest::{header::CONTENT_LENGTH, Client, Url};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use tracing::{debug, info, warn};
+
+use cfg_if::cfg_if;
+cfg_if! {
+    if #[cfg(feature="reduce-big-numbers")] {
+const BIG_NUMBER_DIGIT: f64 = 1000000000000.0;
+    }
+}
 #[derive(Serialize, Deserialize)]
 struct Config {
     listen_address: Ipv4Addr,
@@ -84,7 +91,8 @@ async fn handler(State(state): State<AppState>, request: Request) -> impl IntoRe
 }
 
 async fn format_resp(rep: reqwest::Response) -> impl IntoResponse {
-    let headers = rep.headers().to_owned();
+    let mut headers = rep.headers().to_owned();
+    headers.remove(CONTENT_LENGTH);
     let status = rep.status();
     if let Ok(body) = rep.json::<Value>().await {
         debug!("pretty formatting the response: {}", body);
@@ -112,16 +120,52 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
             Value::Array(new_array)
         }
         Value::Number(n) => {
+            if n.is_f64() {
+                cfg_if! {
+                    if #[cfg(feature="reduce-big-numbers")] {
+                let mut nb = n.as_f64().unwrap();
+                debug!(" f64 nb was: {}", nb);
+                if nb.abs() >= BIG_NUMBER_DIGIT {
+                    nb = nb / BIG_NUMBER_DIGIT;
+                debug!(" f64 nb is now: {}", nb);
+                }
+                } else {
+                    let nb = n.as_f64().unwrap();
+                }
+                }
+                return Value::String(readable::num::Float::from(nb).to_string());
+            }
             if n.is_i64() {
-                return Value::String(readable::num::Int::from(n.as_i64().unwrap()).to_string());
+                cfg_if! {
+                    if #[cfg(feature="reduce-big-numbers")] {
+                let mut nb = n.as_i64().unwrap() as f64;
+                debug!(" i64 nb was: {}", nb);
+                if nb.abs() as f64 >= BIG_NUMBER_DIGIT {
+                    nb = nb / BIG_NUMBER_DIGIT;
+                debug!(" i64 nb is now: {}", nb);
+                return Value::String(readable::num::Float::from(nb).to_string());
+                }
+                } else {
+                    let nb = n.as_i64().unwrap();
+                return Value::String(readable::num::Int::from(nb).to_string());
+                }
+                }
             }
             if n.is_u64() {
-                return Value::String(
-                    readable::num::Unsigned::from(n.as_u64().unwrap()).to_string(),
-                );
-            }
-            if n.is_f64() {
-                return Value::String(readable::num::Float::from(n.as_f64().unwrap()).to_string());
+                cfg_if! {
+                    if #[cfg(feature="reduce-big-numbers")] {
+                let mut nb = n.as_u64().unwrap() as f64;
+                debug!("f64 nb was: {}", nb);
+                if nb >= BIG_NUMBER_DIGIT {
+                    nb = nb / BIG_NUMBER_DIGIT;
+                debug!("f64 nb is now: {}", nb);
+                return Value::String(readable::num::Float::from(nb).to_string());
+                }
+                } else {
+                    let nb = n.as_u64().unwrap();
+                return Value::String(readable::num::Unsigned::from(nb).to_string());
+                }
+                }
             }
             // all case of Number should be handled but because it's not en enum, need to return here.
             Value::Number(n)
