@@ -126,7 +126,7 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                 let mut nb = n.as_f64().unwrap();
                 debug!(" f64 nb was: {}", nb);
                 if nb.abs() >= BIG_NUMBER_DIGIT {
-                    nb = nb / BIG_NUMBER_DIGIT;
+                    nb /= BIG_NUMBER_DIGIT;
                 debug!(" f64 nb is now: {}", nb);
                 }
                 } else {
@@ -140,8 +140,8 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                     if #[cfg(feature="reduce-big-numbers")] {
                 let mut nb = n.as_i64().unwrap() as f64;
                 debug!(" i64 nb was: {}", nb);
-                if nb.abs() as f64 >= BIG_NUMBER_DIGIT {
-                    nb = nb / BIG_NUMBER_DIGIT;
+                if nb.abs() >= BIG_NUMBER_DIGIT {
+                    nb /= BIG_NUMBER_DIGIT;
                 debug!(" i64 nb is now: {}", nb);
                 return Value::String(readable::num::Float::from(nb).to_string());
                 }
@@ -157,7 +157,7 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                 let mut nb = n.as_u64().unwrap() as f64;
                 debug!("f64 nb was: {}", nb);
                 if nb >= BIG_NUMBER_DIGIT {
-                    nb = nb / BIG_NUMBER_DIGIT;
+                    nb /= BIG_NUMBER_DIGIT;
                 debug!("f64 nb is now: {}", nb);
                 return Value::String(readable::num::Float::from(nb).to_string());
                 }
