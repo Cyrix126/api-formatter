@@ -143,8 +143,8 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                 if nb.abs() >= BIG_NUMBER_DIGIT {
                     nb /= BIG_NUMBER_DIGIT;
                 debug!(" i64 nb is now: {}", nb);
-                return Value::String(readable::num::Float::from(nb).to_string());
                 }
+                return Value::String(readable::num::Float::from(nb).to_string());
                 } else {
                     let nb = n.as_i64().unwrap();
                 return Value::String(readable::num::Int::from(nb).to_string());
@@ -159,8 +159,8 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                 if nb >= BIG_NUMBER_DIGIT {
                     nb /= BIG_NUMBER_DIGIT;
                 debug!("f64 nb is now: {}", nb);
-                return Value::String(readable::num::Float::from(nb).to_string());
                 }
+                return Value::String(readable::num::Float::from(nb).to_string());
                 } else {
                     let nb = n.as_u64().unwrap();
                 return Value::String(readable::num::Unsigned::from(nb).to_string());
