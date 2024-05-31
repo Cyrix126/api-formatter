@@ -10,7 +10,7 @@ then
 
   # download binary
   rm -f /opt/api-formatter/api-formatter-linux-amd64
-  wget -q -P /opt/api-formatter/ https://github.com/Cyrix126/api-formatter/releases/download/v0.1.0/api-formatter-linux-amd64
+  wget -q -P /opt/api-formatter/ https://github.com/Cyrix126/api-formatter/releases/download/v0.2.0/api-formatter-linux-amd64
   # set execution permission for binary
   sudo chmod +x /opt/api-formatter/api-formatter-linux-amd64
 
