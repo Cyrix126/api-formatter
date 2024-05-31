@@ -123,7 +123,7 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
             if n.is_f64() {
                 cfg_if! {
                     if #[cfg(feature="reduce-big-numbers")] {
-                let mut nb = n.as_f64().unwrap();
+                let mut nb = n.as_f64().unwrap().round();
                 debug!(" f64 nb was: {}", nb);
                 if nb.abs() >= BIG_NUMBER_DIGIT {
                     nb /= BIG_NUMBER_DIGIT;
@@ -133,18 +133,18 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
                     let nb = n.as_f64().unwrap();
                 }
                 }
-                return Value::String(readable::num::Float::from(nb).to_string());
+                return Value::String(readable::num::Float::from_0(nb).to_string());
             }
             if n.is_i64() {
                 cfg_if! {
                     if #[cfg(feature="reduce-big-numbers")] {
-                let mut nb = n.as_i64().unwrap() as f64;
+                let mut nb = (n.as_i64().unwrap() as f64).round();
                 debug!(" i64 nb was: {}", nb);
                 if nb.abs() >= BIG_NUMBER_DIGIT {
                     nb /= BIG_NUMBER_DIGIT;
                 debug!(" i64 nb is now: {}", nb);
                 }
-                return Value::String(readable::num::Float::from(nb).to_string());
+                return Value::String(readable::num::Float::from_0(nb).to_string());
                 } else {
                     let nb = n.as_i64().unwrap();
                 return Value::String(readable::num::Int::from(nb).to_string());
@@ -154,13 +154,13 @@ fn format_json_fields_into_readable_output(json: Value) -> Value {
             if n.is_u64() {
                 cfg_if! {
                     if #[cfg(feature="reduce-big-numbers")] {
-                let mut nb = n.as_u64().unwrap() as f64;
+                let mut nb = (n.as_u64().unwrap() as f64).round();
                 debug!("f64 nb was: {}", nb);
                 if nb >= BIG_NUMBER_DIGIT {
                     nb /= BIG_NUMBER_DIGIT;
                 debug!("f64 nb is now: {}", nb);
                 }
-                return Value::String(readable::num::Float::from(nb).to_string());
+                return Value::String(readable::num::Float::from_0(nb).to_string());
                 } else {
                     let nb = n.as_u64().unwrap();
                 return Value::String(readable::num::Unsigned::from(nb).to_string());
