@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/opt/api-formatter/api-formatter
+ExecStart=/opt/api-formatter/api-formatter-linux-amd64
 Restart=on-failure
 
 [Install]

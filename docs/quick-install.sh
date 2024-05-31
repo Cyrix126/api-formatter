@@ -19,11 +19,9 @@ sudo  wget -q -P /opt/api-formatter/ https://github.com/Cyrix126/api-formatter/r
   then
   wget -q -P /etc/api-formatter/ https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/config.toml
   fi
-  if [ ! -f /etc/systemd/system/api-formatter.service ]
-  then
-  # download systemd service if it doesn't exist
- sudo wget -q -P /etc/systemd/system https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/api-formatter.service   
- fi
+  # download systemd service and replace it.
+  sudo rm -f /etc/systemd/system/api-formatter.service
+  sudo wget -q -P /etc/systemd/system https://raw.githubusercontent.com/Cyrix126/api-formatter/main/docs/api-formatter.service   
 
 # reload systemctl and enable service at boot
   sudo systemctl daemon-reload
